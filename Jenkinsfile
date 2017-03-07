@@ -16,18 +16,27 @@ node {
 
 	stage '2 - Testing code // Unit testing'
 		echo "We will test code here"
-		
+
 	stage '3 - Running Ansible Environment'
 		//  try to check if there was some changes in the ansibles playbooks,
 		//  if yes RERUN it
 		//  if not We don't need to rerun Ansible and skip stage 2
-		echo "We will run Ansible playbooks here"
-    // ansiblePlaybook(
-    //     playbook: 'path/to/playbook.yml',
-    //     inventory: 'path/to/inventory.ini',
-    //     credentialsId: 'my-creds',
-    //     extras: 'my-extras'
-		// 	)
+		def last_commit = sh "git log -n 1 --pretty=format:%H"
+		def last_ansible_commit = sh "git log -n 1 --pretty=format:%H -- src/deployment"
+
+		if (last_commit == last_ansible_commit) {
+			echo "Fireing Ansible changes --  will rerun the whole shit"
+			// ansiblePlaybook(
+	    //     playbook: 'path/to/playbook.yml',
+	    //     inventory: 'path/to/inventory.ini',
+	    //     credentialsId: 'my-creds',
+	    //     extras: 'my-extras'
+			// 	)
+		} else {
+			echo "Skipping Ansible"
+		}
+
+
 
 
 
