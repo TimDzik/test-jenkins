@@ -11,7 +11,7 @@ node {
 	stage '1 - Checkout Bitch'
 
 		git url: "https://github.com/TimDzik/test-jenkins"
-
+		sh "git checkout develop"
 		CURRENT_BRANCH = sh (
 			script: "git branch -l",
 			returnStdout: true
@@ -39,8 +39,6 @@ node {
 		)
 
 		echo "Last commit = ${LAST_COMMIT_ANSIBLE}"
-
-
 
 		if (LAST_COMMIT == LAST_COMMIT_ANSIBLE) {
 			echo "Fireing Ansible changes --  will rerun the whole shit"
@@ -70,10 +68,6 @@ node {
 
 	stage '6 - Send HipChat Report'
 		//Send an HipChat message
-		notifyHipChat("bitch")
+		hipchatSend notify: true, message: "Build Started: ${env.JOB_NAME} ${env.BUILD_NUMBER}"
 
-}
-
-def notifyHipChat(message) {
-  hipchatSend (color: 'YELLOW', message: message, notify: true, room: 'jenkins', sendAs: 'Jenkins', server: 'api.hipchat.com', textFormat: true, v2enabled: true)
 }
