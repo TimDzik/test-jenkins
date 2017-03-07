@@ -8,12 +8,12 @@ import groovy.json.JsonOutput
 import java.net.URL
 
 node {
-	stage '1 - Checkout Bitch'
+	stage '1 - Checkout to Develop'
 
 		git url: "https://github.com/TimDzik/test-jenkins"
 		sh "git checkout develop"
 		CURRENT_BRANCH = sh (
-			script: "git branch -l",
+			script: "git rev-parse --abbrev-ref HEAD",
 			returnStdout: true
 		)
 		echo "your current branch ${CURRENT_BRANCH}"
@@ -52,10 +52,6 @@ node {
 			echo "Skipping Ansible"
 		}
 
-
-
-
-
 	stage '4 - Deploy'
 		//Remplace code
 		//binary build + push to the binary repository
@@ -68,6 +64,11 @@ node {
 
 	stage '6 - Send HipChat Report'
 		//Send an HipChat message
-		hipchatSend notify: true, message: "Build Started: ${env.JOB_NAME} ${env.BUILD_NUMBER}"
+		notifyHipChat()
 
+}
+def notifyHipChat() {
+	hipchatSend (color: 'YELLOW', notify: true,
+		message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+		)
 }
