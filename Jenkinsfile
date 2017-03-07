@@ -70,8 +70,7 @@ node {
 
 def notifyHipChatBegin() {
 	hipchatSend (color: 'GREEN', notify: true,
-	message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL} <br>
-		If you want to follow the job : ${env.JENKINS_URL}/${env.BUILD_NUMBER}/console (beer))"
+	message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL} <br> If you want to follow the job : ${env.JENKINS_URL}/${env.BUILD_NUMBER}/console (beer))"
 	)
 }
 
