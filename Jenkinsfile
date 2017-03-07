@@ -11,8 +11,12 @@ node {
 	stage '1 - Checkout Bitch'
 
 		git url: "https://github.com/TimDzik/test-jenkins"
-		def current_branch = sh "git branch -l"
-		echo current_branch
+
+		CURRENT_BRANCH = sh (
+			script: "git branch -l",
+			returnStdout: true
+		)
+		echo "your current branch ${CURRENT_BRANCH}"
 
 	stage '2 - Testing code // Unit testing'
 		echo "We will test code here"
@@ -21,10 +25,24 @@ node {
 		//  try to check if there was some changes in the ansibles playbooks,
 		//  if yes RERUN it
 		//  if not We don't need to rerun Ansible and skip stage 2
-		def last_commit = sh "git log -n 1 --pretty=format:%H"
-		def last_ansible_commit = sh "git log -n 1 --pretty=format:%H -- src/deployment"
 
-		if (last_commit == last_ansible_commit) {
+		LAST_COMMIT = sh (
+			script: "git log -n 1 --pretty=format:%H",
+			returnStdout: true
+		)
+
+		echo "Last commit = ${LAST_COMMIT}"
+
+		LAST_COMMIT_ANSIBLE = sh (
+			script: "git log -n 1 --pretty=format:%H -- src/deployment",
+			returnStdout: true
+		)
+
+		echo "Last commit = ${LAST_COMMIT_ANSIBLE}"
+
+
+
+		if (LAST_COMMIT == LAST_COMMIT_ANSIBLE) {
 			echo "Fireing Ansible changes --  will rerun the whole shit"
 			// ansiblePlaybook(
 	    //     playbook: 'path/to/playbook.yml',
