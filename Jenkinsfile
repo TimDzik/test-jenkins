@@ -16,8 +16,11 @@ node {
 
 	stage '2 - Testing code // Unit testing'
 		echo "We will test code here"
-
+		
 	stage '3 - Running Ansible Environment'
+		//  try to check if there was some changes in the ansibles playbooks,
+		//  if yes RERUN it
+		//  if not We don't need to rerun Ansible and skip stage 2
 		echo "We will run Ansible playbooks here"
     // ansiblePlaybook(
     //     playbook: 'path/to/playbook.yml',
@@ -26,12 +29,16 @@ node {
     //     extras: 'my-extras'
 		// 	)
 
+
+
 	stage '4 - Deploy'
 		//Remplace code
+		//binary build + push to the binary repository
 		echo "If everything goes well we will deploy here"
 
 	stage '5 - Running Crossbrowser'
 		//We will see :p
+
 		echo "We will run Crossbrowser Celenium test here and if the error is too big rollback bitch"
 
 	stage '6 - Send HipChat Report'
