@@ -68,7 +68,7 @@ node {
 
 }
 def notifyHipChat() {
-	hipchatSend (color: 'YELLOW', notify: true,
-		message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
+	hipchatSend (color: 'YELLOW', notify: true, token: '156b34148800e126b7af319e4b81cb', 
+		room: 'jenkins', sendAs: 'jenkins', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
 		)
 }
