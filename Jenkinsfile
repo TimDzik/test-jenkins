@@ -9,7 +9,7 @@ import java.net.URL
 
 node {
 	stage '1 - Checkout to Develop'
-
+		notifyHipChatBegin()
 		git url: "https://github.com/TimDzik/test-jenkins"
 		sh "git checkout develop"
 		CURRENT_BRANCH = sh (
@@ -64,11 +64,19 @@ node {
 
 	stage '6 - Send HipChat Report'
 		//Send an HipChat message
-		notifyHipChat()
+		notifyHipChatReport()
 
 }
-def notifyHipChat() {
-	hipchatSend (color: 'YELLOW', notify: true, token: '156b34148800e126b7af319e4b81cb', 
-		room: 'jenkins', sendAs: 'jenkins', message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})"
-		)
+
+def notifyHipChatBegin() {
+	hipchatSend (color: 'GREEN', notify: true,
+	message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL} \n
+		If you want to follow the job : ${env.JENKINS_URL}/${env.BUILD_NUMBER}/console (beer))"
+	)
+}
+
+def notifyHipChatReport() {
+	hipchatSend (color: 'GREEN', notify: true,
+	message: "DONE -  Soon I will implement a report of the build, lemme time bruh"
+
 }
