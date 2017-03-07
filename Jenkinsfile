@@ -39,5 +39,5 @@ node {
 }
 
 def notifyHipChat(message) {
-  hipchatSend (color: 'YELLOW', message: message, notify: true, room: 'jenkins', sendAs: 'Jenkins', server: 'api.hipchat.com', textFormat: true, v2enabled: true;)
+  hipchatSend (color: 'YELLOW', message: message, notify: true, room: 'jenkins', sendAs: 'Jenkins', server: 'api.hipchat.com', textFormat: true, v2enabled: true)
 }
