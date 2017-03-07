@@ -77,5 +77,6 @@ def notifyHipChatBegin() {
 def notifyHipChatReport() {
 	hipchatSend (color: 'GREEN', notify: true,
 	message: "DONE -  Soon I will implement a report of the build, lemme time bruh"
+	)
 
 }
