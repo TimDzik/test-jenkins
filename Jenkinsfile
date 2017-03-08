@@ -26,7 +26,7 @@ node {
 
 		//  Grab the number of commit for the last 5 mins
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "git log --since=5.minutes --pretty=format:%H | wc -l"
+			script: "git log --since=5.minutes --pretty=format:%H | wc -l",
 			returnStdout: true
 		)
 
