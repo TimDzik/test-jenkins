@@ -31,11 +31,9 @@ node {
 
 		//  Grab the number of commit for the last 5 mins
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "git rev-list --all --since=5.minutes --count develop",
+			script: "git rev-list --all --since=5.minutes --count --branches=develop",
 			returnStdout: true
-		)
-
-		echo NUMBER_OF_COMMIT_LAST_5MINS
+		).toInteger()
 
 		//  Grab the last commit id
 		LAST_COMMIT = sh (
@@ -55,9 +53,8 @@ node {
 			returnStdout: true
 		)
 
-		int NUMBER_OF_COMMIT_LAST_5MINS = NUMBER_OF_COMMIT_LAST_5MINS.toInteger()
-
 		echo "NUMBER_OF_COMMIT_LAST_5MINS = ${NUMBER_OF_COMMIT_LAST_5MINS}"
+
 		//  If we had more than 1 commit for the last 5 mins we delay the build of 300secs
 		if (NUMBER_OF_COMMIT_LAST_5MINS > 1) {
 			echo "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep"
