@@ -23,6 +23,7 @@ node {
 
 		//checkouting to develop
 		sh "git checkout develop"
+		sh "git pull origin develop"
 
 		/******************************************************
 			Declaring all my variable from sh command line
