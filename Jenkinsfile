@@ -31,9 +31,9 @@ node {
 
 		//  Grab the number of commit for the last 5 mins
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l",
+			script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l | tr -d '[:space:]'",
 			returnStdout: true
-		).trim().toInteger()
+		).toInteger()
 
 		//  Grab the last commit id
 		LAST_COMMIT = sh (
