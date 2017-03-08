@@ -14,7 +14,7 @@ node {
 	//basically stage 1 plays with git, and set the git environment
 	stage '1 - Checkout to Develop + Security Checking'
 		//notifying HipChat that we begin the job
-		notifyHipChatBegin()
+		// notifyHipChatBegin()
 
 		//grabbing the right git repository
 		git url: "https://github.com/TimDzik/test-jenkins"
@@ -31,7 +31,7 @@ node {
 
 		//  Grab the number of commit for the last 5 mins
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l",
+			script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l | tr -d '[:space:]'",
 			returnStdout: true
 		).toInteger()
 
@@ -112,7 +112,7 @@ node {
 
 	stage '6 - Send HipChat Report'
 		//Send an HipChat message
-		notifyHipChat("GREEN", "End of the building, will send some infos soon bruh")
+		// notifyHipChat("GREEN", "End of the building, will send some infos soon bruh")
 
 }
 
