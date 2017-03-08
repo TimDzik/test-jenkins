@@ -36,10 +36,15 @@ node {
 		// 	script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l | tr -d '[:space:]'",
 		// 	returnStdout: true
 		// )
+
+
+		sh "git log -v develop --since=5.minutes --pretty=format:%H > test.txt.tmp"
+		sh "wc -l test.txt.tmp"
+
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "git log -v develop --since=5.minutes --pretty=format:%H",
+			script: "wc -l test.txt.tmp",
 			returnStdout: true
-		)
+		).toInteger()
 
 		echo NUMBER_OF_COMMIT_LAST_5MINS
 
