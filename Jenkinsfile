@@ -32,19 +32,10 @@ node {
 		*******************************************************/
 
 		//  Grab the number of commit for the last 5 mins
-		// NUMBER_OF_COMMIT_LAST_5MINS = sh (
-		// 	script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l | tr -d '[:space:]'",
-		// 	returnStdout: true
-		// )
-
-
-		sh "git log -v develop --since=5.minutes --pretty=format:%H > test.txt.tmp"
-		sh "wc -l test.txt.tmp"
-
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "wc -l test.txt.tmp",
+			script: "git rev-list --all --since=5.minutes --count develop",
 			returnStdout: true
-		).toInteger()
+		)
 
 		echo NUMBER_OF_COMMIT_LAST_5MINS
 
