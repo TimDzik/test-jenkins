@@ -1,8 +1,6 @@
 #!groovy
 //  Grab the master Jenkinsfile
-//  Grab the master Jenkinsfile
-//  Grab the master Jenkinsfile
-//  Grab the master Jenkinsfile
+
 
 import hudson.model.*
 import hudson.EnvVars
@@ -33,21 +31,10 @@ node {
 	
 
 		//  Grab the number of commit for the last 5 mins
-		// NUMBER_OF_COMMIT_LAST_5MINS = sh (
-		// 	script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l | tr -d '[:space:]'",
-		// 	returnStdout: true
-		// )
-
-
-		sh "git log -v develop --since=5.minutes --pretty=format:%H > test.txt.tmp"
-		sh "wc -l test.txt.tmp"
-
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "wc -l test.txt.tmp",
+			script: "git rev-list --all --since=5.minutes --count --branches=develop",
 			returnStdout: true
 		).toInteger()
-
-		echo NUMBER_OF_COMMIT_LAST_5MINS
 
 		//  Grab the last commit id
 		LAST_COMMIT = sh (
@@ -67,13 +54,12 @@ node {
 			returnStdout: true
 		)
 
-		int NUMBER_OF_COMMIT_LAST_5MINS = NUMBER_OF_COMMIT_LAST_5MINS.toInteger()
-
 		echo "NUMBER_OF_COMMIT_LAST_5MINS = ${NUMBER_OF_COMMIT_LAST_5MINS}"
+
 		//  If we had more than 1 commit for the last 5 mins we delay the build of 300secs
 		if (NUMBER_OF_COMMIT_LAST_5MINS > 1) {
 			echo "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep"
-			sh "delay 300"
+			sh "sleep 300"
 		}else {
 			echo "No other commit were made the last 5 mins. Building ongoing..."
 		}
