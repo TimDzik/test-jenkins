@@ -1,4 +1,7 @@
 #!groovy
+//  Grab the master Jenkinsfile
+//  Grab the master Jenkinsfile
+//  Grab the master Jenkinsfile
 
 import hudson.model.*
 import hudson.EnvVars
@@ -16,7 +19,7 @@ node {
 		//grabbing the right git repository
 		git url: "https://github.com/TimDzik/test-jenkins"
 
-		echo "master"
+
 
 		//checkouting to develop
 		sh "git checkout develop"
@@ -28,9 +31,9 @@ node {
 
 		//  Grab the number of commit for the last 5 mins
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "git log --since=5.minutes --pretty=format:%H | wc -l",
+			script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l",
 			returnStdout: true
-		)
+		).toInteger()
 
 		//  Grab the last commit id
 		LAST_COMMIT = sh (
@@ -49,8 +52,6 @@ node {
 			script: "git log -n 1 --pretty=format:%H -- src/deployment",
 			returnStdout: true
 		)
-
-		echo "NUMBER_OF_COMMIT_LAST_5MINS = ${NUMBER_OF_COMMIT_LAST_5MINS}"
 
 		int NUMBER_OF_COMMIT_LAST_5MINS = NUMBER_OF_COMMIT_LAST_5MINS.toInteger()
 
