@@ -2,6 +2,7 @@
 //  Grab the master Jenkinsfile
 //  Grab the master Jenkinsfile
 //  Grab the master Jenkinsfile
+//  Grab the master Jenkinsfile
 
 import hudson.model.*
 import hudson.EnvVars
@@ -31,8 +32,12 @@ node {
 		*******************************************************/
 
 		//  Grab the number of commit for the last 5 mins
+		// NUMBER_OF_COMMIT_LAST_5MINS = sh (
+		// 	script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l | tr -d '[:space:]'",
+		// 	returnStdout: true
+		// )
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
-			script: "git log -v develop --since=5.minutes --pretty=format:%H | wc -l | tr -d '[:space:]'",
+			script: "git log -v develop --since=5.minutes --pretty=format:%H",
 			returnStdout: true
 		)
 
