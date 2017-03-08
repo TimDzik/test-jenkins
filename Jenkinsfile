@@ -39,7 +39,7 @@ node {
 
 
 		sh "git log -v develop --since=5.minutes --pretty=format:%H > test.txt.tmp"
-		sh "wc -l test.txt.tmp | grep -o \"[0-9]\+\""
+		sh "wc -l test.txt.tmp | grep -o '[0-9]\+'"
 
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
 			script: "wc -l test.txt.tmp",
