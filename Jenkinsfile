@@ -16,6 +16,8 @@ node {
 		//grabbing the right git repository
 		git url: "https://github.com/TimDzik/test-jenkins"
 
+		echo "master"
+
 		//checkouting to develop
 		sh "git checkout develop"
 
