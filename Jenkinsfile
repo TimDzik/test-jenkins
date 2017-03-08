@@ -8,37 +8,69 @@ import groovy.json.JsonOutput
 import java.net.URL
 
 node {
-	stage '1 - Checkout to Develop'
+	//basically stage 1 plays with git, and set the git environment
+	stage '1 - Checkout to Develop + Security Checking'
+		//notifying HipChat that we begin the job
 		notifyHipChatBegin()
+
+		//grabbing the right git repository
 		git url: "https://github.com/TimDzik/test-jenkins"
+
+		//checkouting to develop
 		sh "git checkout develop"
-		CURRENT_BRANCH = sh (
-			script: "git rev-parse --abbrev-ref HEAD",
+
+		/******************************************************
+			Declaring all my variable from sh command line
+			(most of them to grab git infos)
+		*******************************************************/
+
+		//  Grab the number of commit for the last 5 mins
+		NUMBER_OF_COMMIT_LAST_5MINS = sh (
+			script: "git log --since=5.minutes --pretty=format:%H | wc -l"
 			returnStdout: true
 		)
-		echo "your current branch ${CURRENT_BRANCH}"
 
-	stage '2 - Testing code // Unit testing'
-		echo "We will test code here"
-
-	stage '3 - Running Ansible Environment'
-		//  try to check if there was some changes in the ansibles playbooks,
-		//  if yes RERUN it
-		//  if not We don't need to rerun Ansible and skip stage 2
-
+		//  Grab the last commit id
 		LAST_COMMIT = sh (
 			script: "git log -n 1 --pretty=format:%H",
 			returnStdout: true
 		)
 
-		echo "Last commit = ${LAST_COMMIT}"
+		//  Grab the current branch name
+		CURRENT_BRANCH = sh (
+			script: "git rev-parse --abbrev-ref HEAD",
+			returnStdout: true
+		)
 
+		//  Grab the last commit id which modified stuff in src/deployment
 		LAST_COMMIT_ANSIBLE = sh (
 			script: "git log -n 1 --pretty=format:%H -- src/deployment",
 			returnStdout: true
 		)
 
-		echo "Last commit = ${LAST_COMMIT_ANSIBLE}"
+		//  If we had more than 1 commit for the last 5 mins we delay the build of 300secs
+		if (NUMBER_OF_COMMIT_LAST_5MINS > 1) {
+			echo "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep"
+			sh "delay 300"
+		}else {
+			echo "No other commit were made the last 5 mins. Building ongoing..."
+		}
+
+		echo "your current branch ${CURRENT_BRANCH}"
+
+	//  Step2: supposed to run a bunch of test if test fails we rollback bitch
+	//  and redeploy to the last "stable commit"
+	stage '2 - Testing code // Unit testing'
+		echo "We will test code here"
+
+	//  try to check if there was some changes in the ansibles playbooks,
+	//  if yes RERUN it
+	//  if not We don't need to rerun Ansible and skip stage 3
+	stage '3 - Running Ansible Environment'
+
+
+		echo "Last commit = ${LAST_COMMIT}"
+		echo "Last ANSIBLE commit = ${LAST_COMMIT_ANSIBLE}"
 
 		if (LAST_COMMIT == LAST_COMMIT_ANSIBLE) {
 			echo "Fireing Ansible changes --  will rerun the whole shit"
@@ -49,13 +81,21 @@ node {
 	    //     extras: 'my-extras'
 			// 	)
 		} else {
+			//  We skip Ansible as this commit doesn't concern Ansible Changes
 			echo "Skipping Ansible"
 		}
 
+	//  Stage 4: Deploying the tested code
 	stage '4 - Deploy'
 		//Remplace code
 		//binary build + push to the binary repository
 		echo "If everything goes well we will deploy here"
+		// ansiblePlaybook(
+		//     playbook: 'path/to/playbook.yml',
+		//     inventory: 'path/to/inventory.ini',
+		//     credentialsId: 'my-creds',
+		//     extras: 'my-extras'
+		// 	)
 
 	stage '5 - Running Crossbrowser'
 		//We will see :p
@@ -64,19 +104,16 @@ node {
 
 	stage '6 - Send HipChat Report'
 		//Send an HipChat message
-		notifyHipChatReport()
+		notifyHipChat("GREEN", "End of the building, will send some infos soon bruh")
 
 }
 
 def notifyHipChatBegin() {
 	hipchatSend (color: 'GREEN', notify: true,
-	message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL} <br> If you want to follow the job : ${env.JENKINS_URL}/${env.BUILD_NUMBER}/console (beer))"
+	message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL} <br> If you want to follow the job : ${env.JENKINS_URL}${env.BUILD_NUMBER}/console (beer))"
 	)
 }
 
-def notifyHipChatReport() {
-	hipchatSend (color: 'GREEN', notify: true,
-	message: "DONE -  Soon I will implement a report of the build, lemme time bruh"
-	)
-
+def notifyHipChat(color, message) {
+	hipchatSend (color: color, notify: true, message: message)
 }
