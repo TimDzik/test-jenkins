@@ -30,6 +30,7 @@ node {
 			Declaring all my variable from sh command line
 			(most of them to grab git infos)
 		*******************************************************/
+	
 
 		//  Grab the number of commit for the last 5 mins
 		// NUMBER_OF_COMMIT_LAST_5MINS = sh (
