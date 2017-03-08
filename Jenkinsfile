@@ -61,7 +61,7 @@ node {
 		//  If we had more than 1 commit for the last 5 mins we delay the build of 300secs
 		if (NUMBER_OF_COMMIT_LAST_5MINS > 1) {
 			echo "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep"
-			sh "delay 300"
+			sh "sleep 300"
 		}else {
 			echo "No other commit were made the last 5 mins. Building ongoing..."
 		}
