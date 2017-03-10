@@ -20,15 +20,16 @@ node {
 
 
 
-		//checkouting to develop
+		//  Checkouting to develop
 		sh "git checkout develop"
+		//  Pulling develop branch
 		sh "git pull origin develop"
 
 		/******************************************************
 			Declaring all my variable from sh command line
 			(most of them to grab git infos)
 		*******************************************************/
-	
+
 
 		//  Grab the number of commit for the last 5 mins
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
@@ -107,7 +108,6 @@ node {
 
 	stage '5 - Running Crossbrowser'
 		//We will see :p
-
 		echo "We will run Crossbrowser Celenium test here and if the error is too big rollback bitch"
 
 	stage '6 - Send HipChat Report'
