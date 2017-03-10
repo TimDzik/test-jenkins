@@ -20,14 +20,16 @@ node {
 
 
 
-		//checkouting to develop
+		//  Checkouting to develop
 		sh "git checkout develop"
+		//  Pulling develop branch
 		sh "git pull origin develop"
 
 		/******************************************************
 			Declaring all my variable from sh command line
 			(most of them to grab git infos)
 		*******************************************************/
+
 
 		//  Grab the number of commit for the last 5 mins
 		NUMBER_OF_COMMIT_LAST_5MINS = sh (
@@ -81,6 +83,49 @@ node {
 
 		if (LAST_COMMIT == LAST_COMMIT_ANSIBLE) {
 			echo "Fireing Ansible changes --  will rerun the whole shit"
+
+			LAST_COMMIT_ANSIBLE_ = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment",
+				returnStdout: true
+			)
+
+			LAST_COMMIT_ANSIBLE = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment",
+				returnStdout: true
+			)
+
+			LAST_COMMIT_ANSIBLE_INGESTION = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/ingestion",
+				returnStdout: true
+			)
+
+			LAST_COMMIT_ANSIBLE_PROCESSING = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/processing",
+				returnStdout: true
+			)
+
+			LAST_COMMIT_ANSIBLE_SERVING = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/serving",
+				returnStdout: true
+			)
+
+			LAST_COMMIT_ANSIBLE_INGESTION = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/ingestion",
+				returnStdout: true
+			)
+
+			LAST_COMMIT_ANSIBLE_PROCESSING = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/processing",
+				returnStdout: true
+			)
+
+			LAST_COMMIT_ANSIBLE_SERVING = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/serving",
+				returnStdout: true
+			)
+
+
+
 			// ansiblePlaybook(
 	    //     playbook: 'path/to/playbook.yml',
 	    //     inventory: 'path/to/inventory.ini',
@@ -104,9 +149,17 @@ node {
 		//     extras: 'my-extras'
 		// 	)
 
+		switch(LAST_COMMIT) {
+			case LAST_COMMIT_ANSIBLE_:
+
+			break
+			default:
+
+			break
+		}
+
 	stage '5 - Running Crossbrowser'
 		//We will see :p
-
 		echo "We will run Crossbrowser Celenium test here and if the error is too big rollback bitch"
 
 	stage '6 - Send HipChat Report'
@@ -123,4 +176,57 @@ def notifyHipChatBegin() {
 
 def notifyHipChat(color, message) {
 	hipchatSend (color: color, notify: true, message: message)
+}
+
+def deployIngestion() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
+}
+
+def deployProcessing() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
+}
+
+def deployServing() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
+}
+def setupIngestion() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
+}
+
+def setupProcessing() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
+}
+
+def setupServing() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
 }
