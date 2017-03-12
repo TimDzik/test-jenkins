@@ -161,7 +161,7 @@ node {
 					}
 				break
 				default:
-					notifyHipChat("ORANGE", "Infos : Last Ansible commit didn't change either - src/deployment/ingestion - src/deployment/processing - src/deployment/serving")
+					notifyHipChat("GRAY", "Infos : Last Ansible commit didn't change either - src/deployment/ingestion - src/deployment/processing - src/deployment/serving")
 				break
 			}
 
@@ -204,7 +204,7 @@ node {
 				deployServing()
 			break
 			default:
-				notifyHipChat("ORANGE", "Not triggering any changes in either - src/ingestion - src/processing - src/serving So we are not deploying anything, we might have run Ansible Playbook")
+				notifyHipChat("GRAY", "Not triggering any changes in either - src/ingestion - src/processing - src/serving So we are not deploying anything, we might have run Ansible Playbook")
 			break
 		}
 
