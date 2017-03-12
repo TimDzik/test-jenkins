@@ -161,10 +161,7 @@ node {
 					}
 				break
 				default:
-					notifyHipChat("ORANGE", "Infos : Last Ansible commit didn't change either
-					 - src/deployment/ingestion
-					 - src/deployment/processing
-					 - src/deployment/serving")
+					notifyHipChat("ORANGE", "Infos : Last Ansible commit didn't change either - src/deployment/ingestion - src/deployment/processing - src/deployment/serving")
 				break
 			}
 
@@ -207,11 +204,7 @@ node {
 				deployServing()
 			break
 			default:
-				notifyHipChat("ORANGE", "Not triggering any changes in either
-				- src/ingestion
-				- src/processing
-				- src/serving
-				So we are not deploying anything, we might have run Ansible Playbook")
+				notifyHipChat("ORANGE", "Not triggering any changes in either - src/ingestion - src/processing - src/serving So we are not deploying anything, we might have run Ansible Playbook")
 			break
 		}
 
@@ -237,6 +230,7 @@ def notifyHipChat(color, message) {
 }
 
 def deployIngestion() {
+	echo "deployIngestion"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -246,6 +240,7 @@ def deployIngestion() {
 }
 
 def deployProcessing() {
+	echo "deployProcessing"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -255,6 +250,7 @@ def deployProcessing() {
 }
 
 def deployServing() {
+	echo "deployServing"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -263,6 +259,7 @@ def deployServing() {
 	// 	)
 }
 def setupIngestion() {
+	echo "setupIngestion"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -272,6 +269,7 @@ def setupIngestion() {
 }
 
 def setupProcessing() {
+	echo "setupProcessing"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -281,6 +279,7 @@ def setupProcessing() {
 }
 
 def setupServing() {
+	echo "setupServing"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -289,6 +288,7 @@ def setupServing() {
 	// 	)
 }
 def addHostIngestion() {
+	echo "addHostIngestion"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -298,6 +298,7 @@ def addHostIngestion() {
 }
 
 def addHostProcessing() {
+	echo "addHostProcessing"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -307,6 +308,7 @@ def addHostProcessing() {
 }
 
 def addHostServing() {
+	echo "addHostServing"
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
