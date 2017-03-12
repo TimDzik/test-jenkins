@@ -1,7 +1,6 @@
 #!groovy
 //  Grab the master Jenkinsfile
 
-
 import hudson.model.*
 import hudson.EnvVars
 import groovy.json.JsonSlurperClassic
@@ -81,57 +80,94 @@ node {
 		echo "Last commit = ${LAST_COMMIT}"
 		echo "Last ANSIBLE commit = ${LAST_COMMIT_ANSIBLE}"
 
+		/*
+		  X We triggered Ansible changes and now we will test which building we fire :
+				- Adding new host to staging Ingestion = Redeploy ansibles
+						modification in src/deployment/ingestion but NOT host
+				- Adding new host to Processing = Redeploy ansibles
+						modification in src/deployment/processing but NOT host
+				- Adding new host to Serving = Redeploy ansibles
+						modification in src/deployment/serving but NOT host
+				- Changing an Ansible config in Ingestion = Redeploy Ansible on all hosts
+						modification in src/deployment/ingestion/staging
+				- Changing an Ansible config in Processing = Redeploy Ansible on all hosts
+						modification in src/deployment/processing/staging
+				- Changing an Ansible config in Serving = Redeploy Ansible on all hosts
+						modification in src/deployment/serving/staging
+			X Changes in src/ingestion = run an Ansible to ONLY deploy
+			X Changes in src/processing = run an Ansible to ONLY deploy
+			X Changes in src/serving = run an Ansible to ONLY deploy
+		*/
 		if (LAST_COMMIT == LAST_COMMIT_ANSIBLE) {
+			//  We fired some Ansible changes now we have to know where they come from
 			echo "Fireing Ansible changes --  will rerun the whole shit"
 
-			LAST_COMMIT_ANSIBLE_ = sh (
-				script: "git log -n 1 --pretty=format:%H -- src/deployment",
-				returnStdout: true
-			)
-
-			LAST_COMMIT_ANSIBLE = sh (
-				script: "git log -n 1 --pretty=format:%H -- src/deployment",
-				returnStdout: true
-			)
-
+			//  Modification in src/deployment/ingestion
 			LAST_COMMIT_ANSIBLE_INGESTION = sh (
 				script: "git log -n 1 --pretty=format:%H -- src/deployment/ingestion",
 				returnStdout: true
 			)
 
+			//  Modification in src/deployment/processing
 			LAST_COMMIT_ANSIBLE_PROCESSING = sh (
 				script: "git log -n 1 --pretty=format:%H -- src/deployment/processing",
 				returnStdout: true
 			)
 
+			//  Modification in src/deployment/serving
 			LAST_COMMIT_ANSIBLE_SERVING = sh (
 				script: "git log -n 1 --pretty=format:%H -- src/deployment/serving",
 				returnStdout: true
 			)
 
-			LAST_COMMIT_ANSIBLE_INGESTION = sh (
-				script: "git log -n 1 --pretty=format:%H -- src/deployment/ingestion",
+			//  Modification in src/deployment/ingestion/staging
+			LAST_COMMIT_ANSIBLE_INGESTION_HOST = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/ingestion/staging",
 				returnStdout: true
 			)
 
-			LAST_COMMIT_ANSIBLE_PROCESSING = sh (
-				script: "git log -n 1 --pretty=format:%H -- src/deployment/processing",
+			//  Modification in src/deployment/processing/staging
+			LAST_COMMIT_ANSIBLE_PROCESSING_HOST = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/processing/staging",
 				returnStdout: true
 			)
 
-			LAST_COMMIT_ANSIBLE_SERVING = sh (
-				script: "git log -n 1 --pretty=format:%H -- src/deployment/serving",
+			//  Modification in src/deployment/serving/staging
+			LAST_COMMIT_ANSIBLE_SERVING_HOST = sh (
+				script: "git log -n 1 --pretty=format:%H -- src/deployment/serving/staging",
 				returnStdout: true
 			)
 
+			switch(LAST_COMMIT) {
+				case LAST_COMMIT_ANSIBLE_SERVING:
+					if (LAST_COMMIT_ANSIBLE_SERVING_HOST == LAST_COMMIT_ANSIBLE_SERVING) {
+						addHostServing()
+					}else {
+						setupServing()()
+					}
+				break
+				case LAST_COMMIT_ANSIBLE_PROCESSING:
+					if (LAST_COMMIT_ANSIBLE_PROCESSING_HOST == LAST_COMMIT_ANSIBLE_PROCESSING) {
+						addHostProcessing()
+					}else {
+						setupProcessing()
+					}
+				break
+				case LAST_COMMIT_ANSIBLE_INGESTION:
+					if (LAST_COMMIT_ANSIBLE_INGESTION_HOST == LAST_COMMIT_ANSIBLE_INGESTION) {
+						addHostIngestion()
+					}else {
+						setupIngestion()
+					}
+				break
+				default:
+					notifyHipChat("ORANGE", "Infos : Last Ansible commit didn't change either
+					 - src/deployment/ingestion
+					 - src/deployment/processing
+					 - src/deployment/serving")
+				break
+			}
 
-
-			// ansiblePlaybook(
-	    //     playbook: 'path/to/playbook.yml',
-	    //     inventory: 'path/to/inventory.ini',
-	    //     credentialsId: 'my-creds',
-	    //     extras: 'my-extras'
-			// 	)
 		} else {
 			//  We skip Ansible as this commit doesn't concern Ansible Changes
 			echo "Skipping Ansible"
@@ -139,24 +175,46 @@ node {
 
 	//  Stage 4: Deploying the tested code
 	stage '4 - Deploy'
-		//Remplace code
-		//binary build + push to the binary repository
+
 		echo "If everything goes well we will deploy here"
-		// ansiblePlaybook(
-		//     playbook: 'path/to/playbook.yml',
-		//     inventory: 'path/to/inventory.ini',
-		//     credentialsId: 'my-creds',
-		//     extras: 'my-extras'
-		// 	)
+
+		//  Modification in src/ingestion
+		LAST_COMMIT_INGESTION = sh (
+			script: "git log -n 1 --pretty=format:%H -- src/ingestion",
+			returnStdout: true
+		)
+
+		//  Modification in src/processing
+		LAST_COMMIT_PROCESSING = sh (
+			script: "git log -n 1 --pretty=format:%H -- src/processing",
+			returnStdout: true
+		)
+
+		//  Modification in src/serving
+		LAST_COMMIT_SERVING = sh (
+			script: "git log -n 1 --pretty=format:%H -- src/serving",
+			returnStdout: true
+		)
 
 		switch(LAST_COMMIT) {
-			case LAST_COMMIT_ANSIBLE_:
-
+			case LAST_COMMIT_INGESTION:
+				deployIngestion()
+			break
+			case LAST_COMMIT_PROCESSING:
+				deployProcessing()
+			break
+			case LAST_COMMIT_SERVING:
+				deployServing()
 			break
 			default:
-
+				notifyHipChat("ORANGE", "Not triggering any changes in either
+				- src/ingestion
+				- src/processing
+				- src/serving
+				So we are not deploying anything, we might have run Ansible Playbook")
 			break
 		}
+
 
 	stage '5 - Running Crossbrowser'
 		//We will see :p
@@ -164,7 +222,7 @@ node {
 
 	stage '6 - Send HipChat Report'
 		//Send an HipChat message
-		// notifyHipChat("GREEN", "End of the building, will send some infos soon bruh")
+		notifyHipChat("GREEN", "End of the building, will send some infos soon bruh")
 
 }
 
@@ -223,6 +281,32 @@ def setupProcessing() {
 }
 
 def setupServing() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
+}
+def addHostIngestion() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
+}
+
+def addHostProcessing() {
+	// ansiblePlaybook(
+	//     playbook: 'path/to/playbook.yml',
+	//     inventory: 'path/to/inventory.ini',
+	//     credentialsId: 'my-creds',
+	//     extras: 'my-extras'
+	// 	)
+}
+
+def addHostServing() {
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
