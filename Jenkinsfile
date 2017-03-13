@@ -126,7 +126,7 @@ node {
 
 		} else {
 			//  We skip Ansible as this commit doesn't concern Ansible Changes
-			hipchatSend('PURPLE', "Commit : ${LAST_COMMIT} doesnt contain any Ansible changes, skipping this stage! *dab*")
+			hipchatSend('PURPLE', "Commit : doesnt contain any Ansible changes, skipping this stage! *dab*")
 		}
 
 	//  Stage 4: Deploying the tested code
