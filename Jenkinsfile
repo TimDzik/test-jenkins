@@ -58,16 +58,16 @@ node {
 
 		//  If we had more than 1 commit for the last 5 mins we delay the build of 300secs
 		if (NUMBER_OF_COMMIT_LAST_5MINS > 1) {
-			hipchatSend("PURPLE", "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep")
+			hipchatSend('PURPLE', "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep")
 			sh "sleep 3"
 		}else {
-			hipchatSend("PURPLE", "No other commit then ${LAST_COMMIT} were made the last 5 mins. Building ongoing...")
+			hipchatSend('PURPLE', "No other commit then ${LAST_COMMIT} were made the last 5 mins. Building ongoing...")
 		}
 
 	//  Step2: supposed to run a bunch of test if test fails we rollback bitch
 	//  and redeploy to the last "stable commit"
 	stage '2 - Testing code // Unit testing'
-		hipchatSend("PURPLE", "Stage 2 - Testing")
+		hipchatSend('PURPLE', "Stage 2 - Testing")
 
 	//  try to check if there was some changes in the ansibles playbooks,
 	//  if yes RERUN it
@@ -126,12 +126,12 @@ node {
 
 		} else {
 			//  We skip Ansible as this commit doesn't concern Ansible Changes
-			hipchatSend("PURPLE", "Commit : ${LAST_COMMIT} doesnt contain any Ansible changes, skipping this stage! *dab*")
+			hipchatSend('PURPLE', "Commit : ${LAST_COMMIT} doesnt contain any Ansible changes, skipping this stage! *dab*")
 		}
 
 	//  Stage 4: Deploying the tested code
 	stage '4 - Deploy'
-	
+
 		//  Modification in src/ingestion
 		LAST_COMMIT_INGESTION = sh (
 			script: "git log -n 1 --pretty=format:%H -- src/ingestion",
@@ -163,7 +163,7 @@ node {
 
 	stage '6 - Send HipChat Report'
 		//Send an HipChat message
-		notifyHipChat("GREEN", "End of the building, will send some infos soon bruh")
+		notifyHipChat('GREEN', "End of the building, will send some infos soon bruh")
 
 }
 
