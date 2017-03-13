@@ -12,7 +12,7 @@ node {
 	//basically stage 1 plays with git, and set the git environment
 	stage '1 - Checkout to Develop + Security Checking'
 		//notifying HipChat that we begin the job
-		// notifyHipChatBegin()
+		notifyHipChat('GREEN', "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL} <br> If you want to follow the job : ${env.JENKINS_URL}${env.BUILD_NUMBER}/console ")
 
 		//grabbing the right git repository
 		git url: "https://github.com/TimDzik/test-jenkins"
@@ -58,28 +58,21 @@ node {
 
 		//  If we had more than 1 commit for the last 5 mins we delay the build of 300secs
 		if (NUMBER_OF_COMMIT_LAST_5MINS > 1) {
-			echo "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep"
-			sh "sleep 300"
+			hipchatSend("PURPLE", "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep")
+			sh "sleep 3"
 		}else {
-			echo "No other commit were made the last 5 mins. Building ongoing..."
+			hipchatSend("PURPLE", "No other commit then ${LAST_COMMIT} were made the last 5 mins. Building ongoing...")
 		}
-
-		echo "your current branch ${CURRENT_BRANCH}"
 
 	//  Step2: supposed to run a bunch of test if test fails we rollback bitch
 	//  and redeploy to the last "stable commit"
 	stage '2 - Testing code // Unit testing'
-		echo "We will test code here"
+		hipchatSend("PURPLE", "Stage 2 - Testing")
 
 	//  try to check if there was some changes in the ansibles playbooks,
 	//  if yes RERUN it
 	//  if not We don't need to rerun Ansible and skip stage 3
 	stage '3 - Running Ansible Environment'
-
-
-		echo "Last commit = ${LAST_COMMIT}"
-		echo "Last ANSIBLE commit = ${LAST_COMMIT_ANSIBLE}"
-
 		/*
 		  X We triggered Ansible changes and now we will test which building we fire :
 				- Adding new host to staging Ingestion = Redeploy ansibles
@@ -97,6 +90,10 @@ node {
 			X Changes in src/ingestion = run an Ansible to ONLY deploy
 			X Changes in src/processing = run an Ansible to ONLY deploy
 			X Changes in src/serving = run an Ansible to ONLY deploy
+
+			~~~~~~~~~~~~~~~~~~~~~~~~
+
+			Finally we will just test which repo in deployment has been change and rerun everything
 		*/
 		if (LAST_COMMIT == LAST_COMMIT_ANSIBLE) {
 			//  We fired some Ansible changes now we have to know where they come from
@@ -120,61 +117,21 @@ node {
 				returnStdout: true
 			)
 
-			//  Modification in src/deployment/ingestion/staging
-			LAST_COMMIT_ANSIBLE_INGESTION_HOST = sh (
-				script: "git log -n 1 --pretty=format:%H -- src/deployment/ingestion/staging",
-				returnStdout: true
-			)
-
-			//  Modification in src/deployment/processing/staging
-			LAST_COMMIT_ANSIBLE_PROCESSING_HOST = sh (
-				script: "git log -n 1 --pretty=format:%H -- src/deployment/processing/staging",
-				returnStdout: true
-			)
-
-			//  Modification in src/deployment/serving/staging
-			LAST_COMMIT_ANSIBLE_SERVING_HOST = sh (
-				script: "git log -n 1 --pretty=format:%H -- src/deployment/serving/staging",
-				returnStdout: true
-			)
-
-			switch(LAST_COMMIT) {
-				case LAST_COMMIT_ANSIBLE_SERVING:
-					if (LAST_COMMIT_ANSIBLE_SERVING_HOST == LAST_COMMIT_ANSIBLE_SERVING) {
-						addHostServing()
-					}else {
-						setupServing()()
-					}
-				break
-				case LAST_COMMIT_ANSIBLE_PROCESSING:
-					if (LAST_COMMIT_ANSIBLE_PROCESSING_HOST == LAST_COMMIT_ANSIBLE_PROCESSING) {
-						addHostProcessing()
-					}else {
-						setupProcessing()
-					}
-				break
-				case LAST_COMMIT_ANSIBLE_INGESTION:
-					if (LAST_COMMIT_ANSIBLE_INGESTION_HOST == LAST_COMMIT_ANSIBLE_INGESTION) {
-						addHostIngestion()
-					}else {
-						setupIngestion()
-					}
-				break
-				default:
-					notifyHipChat("GRAY", "Infos : Last Ansible commit didn't change either - src/deployment/ingestion - src/deployment/processing - src/deployment/serving")
-				break
-			}
+			if ( LAST_COMMIT == LAST_COMMIT_ANSIBLE_SERVING)
+				setupServing()
+			if ( LAST_COMMIT == LAST_COMMIT_ANSIBLE_PROCESSING)
+				setupProcessing()
+			if ( LAST_COMMIT == LAST_COMMIT_ANSIBLE_INGESTION)
+				setupIngestion()
 
 		} else {
 			//  We skip Ansible as this commit doesn't concern Ansible Changes
-			echo "Skipping Ansible"
+			hipchatSend("PURPLE", "Commit : ${LAST_COMMIT} doesnt contain any Ansible changes, skipping this stage! *dab*")
 		}
 
 	//  Stage 4: Deploying the tested code
 	stage '4 - Deploy'
-
-		echo "If everything goes well we will deploy here"
-
+	
 		//  Modification in src/ingestion
 		LAST_COMMIT_INGESTION = sh (
 			script: "git log -n 1 --pretty=format:%H -- src/ingestion",
@@ -193,21 +150,12 @@ node {
 			returnStdout: true
 		)
 
-		switch(LAST_COMMIT) {
-			case LAST_COMMIT_INGESTION:
-				deployIngestion()
-			break
-			case LAST_COMMIT_PROCESSING:
-				deployProcessing()
-			break
-			case LAST_COMMIT_SERVING:
-				deployServing()
-			break
-			default:
-				notifyHipChat("GRAY", "Not triggering any changes in either - src/ingestion - src/processing - src/serving So we are not deploying anything, we might have run Ansible Playbook")
-			break
-		}
-
+		if ( LAST_COMMIT == LAST_COMMIT_INGESTION)
+			deployIngestion()
+		if ( LAST_COMMIT == LAST_COMMIT_PROCESSING)
+			deployProcessing()
+		if ( LAST_COMMIT == LAST_COMMIT_SERVING)
+			deployServing()
 
 	stage '5 - Running Crossbrowser'
 		//We will see :p
@@ -219,18 +167,12 @@ node {
 
 }
 
-def notifyHipChatBegin() {
-	hipchatSend (color: 'GREEN', notify: true,
-	message: "STARTED: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL} <br> If you want to follow the job : ${env.JENKINS_URL}${env.BUILD_NUMBER}/console (beer))"
-	)
-}
-
 def notifyHipChat(color, message) {
 	hipchatSend (color: color, notify: true, message: message)
 }
 
 def deployIngestion() {
-	echo "deployIngestion"
+	hipchatSend('GREEN', 'Starting Ingestion Deployement')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -240,7 +182,7 @@ def deployIngestion() {
 }
 
 def deployProcessing() {
-	echo "deployProcessing"
+	hipchatSend('GREEN', 'Starting Processing Deployement')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -250,7 +192,7 @@ def deployProcessing() {
 }
 
 def deployServing() {
-	echo "deployServing"
+	hipchatSend('GREEN', 'Starting Serving Deployement')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -260,6 +202,7 @@ def deployServing() {
 }
 def setupIngestion() {
 	echo "setupIngestion"
+	hipchatSend('GREEN', 'Starting Ansible on Ingestion')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -269,7 +212,7 @@ def setupIngestion() {
 }
 
 def setupProcessing() {
-	echo "setupProcessing"
+	hipchatSend('GREEN', 'Starting Ansible on Processing')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -279,36 +222,7 @@ def setupProcessing() {
 }
 
 def setupServing() {
-	echo "setupServing"
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
-}
-def addHostIngestion() {
-	echo "addHostIngestion"
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
-}
-
-def addHostProcessing() {
-	echo "addHostProcessing"
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
-}
-
-def addHostServing() {
-	echo "addHostServing"
+	hipchatSend('GREEN', 'Starting Ansible on Serving')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
