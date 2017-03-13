@@ -61,7 +61,7 @@ node {
 			hipchatSend('PURPLE', "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep")
 			sh "sleep 3"
 		}else {
-			hipchatSend('PURPLE', "No other commit then ${LAST_COMMIT} were made the last 5 mins. Building ongoing...")
+			hipchatSend('PURPLE', "No other commit were made the last 5 mins. Building ongoing...")
 		}
 
 	//  Step2: supposed to run a bunch of test if test fails we rollback bitch
