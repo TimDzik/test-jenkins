@@ -58,16 +58,16 @@ node {
 
 		//  If we had more than 1 commit for the last 5 mins we delay the build of 300secs
 		if (NUMBER_OF_COMMIT_LAST_5MINS > 1) {
-			hipchatSend('PURPLE', "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep")
+			notifyHipChat('PURPLE', "We found 2 commits made to Develop the last 5 mins, we force a 300secs sleep")
 			sh "sleep 3"
 		}else {
-			hipchatSend('PURPLE', "No other commit were made the last 5 mins. Building ongoing...")
+			notifyHipChat('PURPLE', "No other commit were made the last 5 mins. Building ongoing...")
 		}
 
 	//  Step2: supposed to run a bunch of test if test fails we rollback bitch
 	//  and redeploy to the last "stable commit"
 	stage '2 - Testing code // Unit testing'
-		hipchatSend('PURPLE', "Stage 2 - Testing")
+		notifyHipChat('PURPLE', "Stage 2 - Testing")
 
 	//  try to check if there was some changes in the ansibles playbooks,
 	//  if yes RERUN it
@@ -126,7 +126,7 @@ node {
 
 		} else {
 			//  We skip Ansible as this commit doesn't concern Ansible Changes
-			hipchatSend('PURPLE', "Commit : doesnt contain any Ansible changes, skipping this stage! *dab*")
+			notifyHipChat('PURPLE', "Commit : doesnt contain any Ansible changes, skipping this stage! *dab*")
 		}
 
 	//  Stage 4: Deploying the tested code
@@ -168,11 +168,11 @@ node {
 }
 
 def notifyHipChat(color, message) {
-	hipchatSend (color: color, notify: true, message: message)
+	notifyHipChat (color: color, notify: true, message: message)
 }
 
 def deployIngestion() {
-	hipchatSend('GREEN', 'Starting Ingestion Deployement')
+	notifyHipChat('GREEN', 'Starting Ingestion Deployement')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -182,7 +182,7 @@ def deployIngestion() {
 }
 
 def deployProcessing() {
-	hipchatSend('GREEN', 'Starting Processing Deployement')
+	notifyHipChat('GREEN', 'Starting Processing Deployement')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -192,7 +192,7 @@ def deployProcessing() {
 }
 
 def deployServing() {
-	hipchatSend('GREEN', 'Starting Serving Deployement')
+	notifyHipChat('GREEN', 'Starting Serving Deployement')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -202,7 +202,7 @@ def deployServing() {
 }
 def setupIngestion() {
 	echo "setupIngestion"
-	hipchatSend('GREEN', 'Starting Ansible on Ingestion')
+	notifyHipChat('GREEN', 'Starting Ansible on Ingestion')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -212,7 +212,7 @@ def setupIngestion() {
 }
 
 def setupProcessing() {
-	hipchatSend('GREEN', 'Starting Ansible on Processing')
+	notifyHipChat('GREEN', 'Starting Ansible on Processing')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
@@ -222,7 +222,7 @@ def setupProcessing() {
 }
 
 def setupServing() {
-	hipchatSend('GREEN', 'Starting Ansible on Serving')
+	notifyHipChat('GREEN', 'Starting Ansible on Serving')
 	// ansiblePlaybook(
 	//     playbook: 'path/to/playbook.yml',
 	//     inventory: 'path/to/inventory.ini',
