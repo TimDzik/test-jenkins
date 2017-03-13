@@ -8,6 +8,10 @@ import groovy.json.JsonBuilder
 import groovy.json.JsonOutput
 import java.net.URL
 
+def notifyHipChat(color, message) {
+	notifyHipChat (color: color, notify: true, message: message)
+}
+
 node {
 	//basically stage 1 plays with git, and set the git environment
 	stage '1 - Checkout to Develop + Security Checking'
@@ -165,10 +169,6 @@ node {
 		//Send an HipChat message
 		notifyHipChat('GREEN', "End of the building, will send some infos soon bruh")
 
-}
-
-def notifyHipChat(color, message) {
-	notifyHipChat (color: color, notify: true, message: message)
 }
 
 def deployIngestion() {
