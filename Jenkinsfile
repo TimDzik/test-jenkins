@@ -156,6 +156,8 @@ node {
 			deployProcessing()
 		if ( LAST_COMMIT == LAST_COMMIT_SERVING)
 			deployServing()
+		if (LAST_COMMIT != LAST_COMMIT_INGESTION &&LAST_COMMIT != LAST_COMMIT_PROCESSING && LAST_COMMIT != LAST_COMMIT_SERVING)
+			notifyHipChat('PURPLE', "No changes so no deployment")
 
 	stage '5 - Running Crossbrowser'
 		//We will see :p
