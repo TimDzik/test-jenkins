@@ -205,30 +205,34 @@ def deployServing() {
 def setupIngestion() {
 	echo "setupIngestion"
 	notifyHipChat('GREEN', 'Starting Ansible on Ingestion')
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
+
+	wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
+		ansiblePlaybook(
+		    playbook: 'src/deployment/ingestion/pipeline.yml',
+		    inventory: 'src/deployment/ingestion/staging',
+		    credentialsId: 'my-creds'
+		)
+	}
 }
 
 def setupProcessing() {
 	notifyHipChat('GREEN', 'Starting Ansible on Processing')
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
+	wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
+		ansiblePlaybook(
+	    playbook: 'src/deployment/processing/processing.yml',
+	    inventory: 'src/deployment/processing/staging',
+	    credentialsId: 'my-creds'
+		)
+	}
 }
 
 def setupServing() {
 	notifyHipChat('GREEN', 'Starting Ansible on Serving')
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
+	wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
+		ansiblePlaybook(
+	    playbook: 'src/deployment/serving/scheduler.yml',
+	    inventory: 'src/deployment/processing/staging',
+	    credentialsId: 'my-creds'
+		)
+	}
 }
