@@ -21,6 +21,7 @@ node {
 		notifyHipChat('YELLOW', "Bart too :):dnsabsn)")
 
 
+
 		//  Checkouting to develop
 		sh "git checkout develop"
 		//  Pulling develop branch
