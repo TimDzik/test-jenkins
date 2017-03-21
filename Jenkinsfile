@@ -17,7 +17,7 @@ node {
 		//grabbing the right git repository
 		git url: "https://github.com/TimDzik/test-jenkins"
 
-		notifyHipChat('YELLOW', "BAS   dasnnfuck you")
+		notifyHipChat('YELLOW', "BAS   dasnn fuck you")
 		notifyHipChat('YELLOW', "Bart too")
 
 
