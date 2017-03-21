@@ -20,9 +20,9 @@ node {
 
 
 		//  Checkouting to develop
-		sh "git checkout develop"
+		// sh "git checkout develop"
 		//  Pulling develop branch
-		sh "git pull origin develop"
+		// sh "git pull origin develop"
 
 		/******************************************************
 			Declaring all my variable from sh command line
@@ -73,6 +73,7 @@ node {
 	//  if yes RERUN it
 	//  if not We don't need to rerun Ansible and skip stage 3
 	stage '3 - Running Ansible Environment'
+
 		/*
 		  X We triggered Ansible changes and now we will test which building we fire :
 				- Adding new host to staging Ingestion = Redeploy ansibles
@@ -90,11 +91,12 @@ node {
 			X Changes in src/ingestion = run an Ansible to ONLY deploy
 			X Changes in src/processing = run an Ansible to ONLY deploy
 			X Changes in src/serving = run an Ansible to ONLY deploy
-
-			~~~~~~~~~~~~~~~~~~~~~~~~
-
-			Finally we will just test which repo in deployment has been change and rerun everything
+			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+				Finally we will just test which repo in deployment has been
+				change and rerun everything
+			~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		*/
+
 		if (LAST_COMMIT == LAST_COMMIT_ANSIBLE) {
 			//  We fired some Ansible changes now we have to know where they come from
 			echo "Fireing Ansible changes --  will rerun the whole shit"
@@ -173,44 +175,86 @@ def notifyHipChat(color, message) {
 	hipchatSend (color: color, notify: true, message: message)
 }
 
+
+
+def checkGoInstalled() {
+	GO_INSTALLED = sh (
+		script: "go version",
+		returnStdout: true
+	)
+	if (GO_INSTALLED.contains("go version"))
+		return true
+	return false
+}
+
+def installGo() {
+	notifyHipChat('GREEN', 'Installing GO on the Jenkins server (not installed <- weird)')
+	wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
+		ansiblePlaybook(
+		    playbook: 'src/deployment/jenkinks.yml',
+		    inventory: 'src/deployment/jenkins',
+		    credentialsId: '4'
+		)
+	}
+}
+
+/*
+	So to deploy INGESTION :
+	- downloader - go - 130.211.59.49
+	- scheduler
+	- replay kafka
+*/
 def deployIngestion() {
 	notifyHipChat('GREEN', 'Starting Ingestion Deployement')
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
+	if (checkGoInstalled()) {
+		buildGoMove('src/ingestion/dowloader', '130.211.59.49')
+		buildGoMove('src/ingestion/scheduler', '130.211.59.49')
+		buildGoMove('src/ingestion/replaykafka', '130.211.59.49')
+	}else {
+		installGo()
+		deployIngestion()
+	}
 }
+
+def buildGoMove(PATH, IP_ADDRESS) {
+	sh "cd ${PATH}"
+	sh "go get"
+	sh "go build"
+
+}
+
 
 def deployProcessing() {
 	notifyHipChat('GREEN', 'Starting Processing Deployement')
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
+	wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
+		ansiblePlaybook(
+		    playbook: 'path/to/playbook.yml',
+		    inventory: 'path/to/inventory.ini',
+		    credentialsId: '4',
+		    extras: 'my-extras'
+		)
+	}
 }
 
 def deployServing() {
 	notifyHipChat('GREEN', 'Starting Serving Deployement')
-	// ansiblePlaybook(
-	//     playbook: 'path/to/playbook.yml',
-	//     inventory: 'path/to/inventory.ini',
-	//     credentialsId: 'my-creds',
-	//     extras: 'my-extras'
-	// 	)
+	wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
+		ansiblePlaybook(
+		    playbook: 'path/to/playbook.yml',
+		    inventory: 'path/to/inventory.ini',
+		    credentialsId: '4',
+		    extras: 'my-extras'
+		)
+	}
 }
-def setupIngestion() {
-	echo "setupIngestion"
-	notifyHipChat('GREEN', 'Starting Ansible on Ingestion')
 
+def setupIngestion() {
+	notifyHipChat('GREEN', 'Starting Ansible on Ingestion : If you want to follow the process ')
 	wrap([$class: 'AnsiColorBuildWrapper', colorMapName: "xterm"]) {
 		ansiblePlaybook(
 		    playbook: 'src/deployment/ingestion/pipeline.yml',
 		    inventory: 'src/deployment/ingestion/staging',
-		    credentialsId: 'my-creds'
+		    credentialsId: '4'
 		)
 	}
 }
@@ -221,7 +265,7 @@ def setupProcessing() {
 		ansiblePlaybook(
 	    playbook: 'src/deployment/processing/processing.yml',
 	    inventory: 'src/deployment/processing/staging',
-	    credentialsId: 'my-creds'
+	    credentialsId: '4'
 		)
 	}
 }
@@ -232,7 +276,7 @@ def setupServing() {
 		ansiblePlaybook(
 	    playbook: 'src/deployment/serving/scheduler.yml',
 	    inventory: 'src/deployment/processing/staging',
-	    credentialsId: 'my-creds'
+	    credentialsId: '4'
 		)
 	}
 }
