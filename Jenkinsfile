@@ -16,14 +16,15 @@ node {
 
 		//grabbing the right git repository
 		git url: "https://github.com/TimDzik/test-jenkins"
+		
 		notifyHipChat('YELLOW', "BAS fuck you")
 		notifyHipChat('YELLOW', "Bart too :) ")
 
 
 		//  Checkouting to develop
-		// sh "git checkout develop"
+		sh "git checkout develop"
 		//  Pulling develop branch
-		// sh "git pull origin develop"
+		sh "git pull origin develop"
 
 		/******************************************************
 			Declaring all my variable from sh command line
