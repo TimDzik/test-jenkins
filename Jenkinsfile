@@ -26,7 +26,7 @@ node {
 		//  Pulling develop branch
 		sh "git pull origin develop"
 
-		/*****************dsanbdkjsa********dsdsdsadsdsadsaa*****************************
+		/*****************dsandsajkdahskj bdkjsa********dsdsdsadsdsadsaa*****************************
 			Declaring all my variable from sh command line
 			(most of them to grab git infos)
 		*******************************************************/
