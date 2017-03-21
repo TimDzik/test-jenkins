@@ -18,7 +18,7 @@ node {
 		git url: "https://github.com/TimDzik/test-jenkins"
 
 		notifyHipChat('YELLOW', "BAS fuck you")
-		notifyHipChat('YELLOW', "Bart too :) :p")
+		notifyHipChat('YELLOW', "Bart too:) :p")
 
 
 		//  Checkouting to develop
