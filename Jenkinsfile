@@ -163,7 +163,7 @@ node {
 		if (LAST_COMMIT != LAST_COMMIT_INGESTION &&LAST_COMMIT != LAST_COMMIT_PROCESSING && LAST_COMMIT != LAST_COMMIT_SERVING)
 			notifyHipChat('PURPLE', "No changes so no deployment")
 
-	stage '5 - Running Crossbrowser'
+	stage 'Stage 5 - Running Crossbrowser'
 		//We will see :p
 		echo "We will run Crossbrowser Celenium test here and if the error is too big rollback bitch"
 
